@@ -1,0 +1,9 @@
+= form_for @screendump_result do |f|
+  - if @screendump_result.errors.any?
+    #error_explanation
+      h2 = "#{pluralize(@screendump_result.errors.count, "error")} prohibited this screendump_result from being saved:"
+      ul
+        - @screendump_result.errors.full_messages.each do |message|
+          li = message
+
+  .actions = f.submit

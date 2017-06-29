@@ -1,0 +1,27 @@
+h1 Listing screendump_results
+= form_tag(screendump_results_path, method: "get") do
+  = label_tag(:tests, "Filter by test name")
+  = text_field_tag(:tests, @previous_tests)
+  = select_tag 'runtimes[]', options_for_select(@runtime_choices, @previous_runtimes), multiple: true
+  = select_tag 'results[]', options_for_select(['PASS','WARN','FAIL'], @previous_results), multiple: true
+  = submit_tag("Filter")
+table
+  thead
+    tr
+      th Test
+      th Runtime
+      th Result
+      th Notes
+
+  tbody
+    - @screendump_results.each do |screendump_result|
+      tr
+        td = screendump_result.test
+        td = screendump_result.runtime
+        td = screendump_result.result
+        td = screendump_result.notes
+        td = link_to 'Show', screendump_result
+
+br
+
+= link_to 'New Screendump result', new_screendump_result_path

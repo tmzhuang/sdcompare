@@ -1,0 +1,20 @@
+p#notice = notice
+
+/= image_tag('file:///home/tzhuang/tmp/img/base.png')
+table
+  thead
+    tr
+      th Reference
+      th Screendump
+
+  tbody
+    tr
+      td = image_tag 'http://ecocar3.org/wp-content/uploads/2014/10/Crank_Software.png'
+      td = image_tag 'http://ecocar3.org/wp-content/uploads/2014/10/Crank_Software.png'
+    tr
+      td test:#{@screendump_result.test}
+
+
+/= link_to 'Edit', edit_screendump_result_path(@screendump_result)
+/'  |
+= link_to 'Back', screendump_results_path
