@@ -4,25 +4,47 @@ class ScreendumpResultsController < ApplicationController
   # GET /screendump_results
   # GET /screendump_results.json
   def index
-    @runtime_choices = ScreendumpResult.all.pluck(:runtime).uniq
-    @screendump_results = ScreendumpResult.order(test: :asc).order(runtime: :asc).order(result: :asc).all
-    @screendump_results = @screendump_results.where(result: filter_params[:results]) if filter_params[:results]
-    @screendump_results = @screendump_results.where(runtime: filter_params[:runtimes]) if filter_params[:runtimes]
-    if filter_params[:tests]
-      tests = filter_params[:tests].split(',').map{|s| s.strip}.join('|')
-      #re = tests.map{|s| Regexp.new s}.reduce{|acc,re| Regexp.union(acc,re)}
+    # Table ordering
+    @screendump_results = ScreendumpResult.order(test: :asc).
+      order(result: :asc).all
+    cols_with_choices = ['source_revision','source_runtime','target_revision','target_runtime','result']
+    
+    # Filtering
+    @choices = {}
+    cols_with_choices.each do |col|
+      # Generate choices for filter form
+      @choices[col] = ScreendumpResult.all.pluck(col).uniq
+      # Filter if necessary
+      @screendump_results = @screendump_results.where(col => filter_params[col]) if filter_params[col]
+    end
+    if filter_params[:test]
+      tests = filter_params[:test].split(',').map{|s| s.strip}.join('|')
       @screendump_results = @screendump_results.where("test ~* ?", tests)
     end
+
+    # Populate previous choices form if they exist
+    @previous_choices = {}
     if filter_params
-      @previous_tests = filter_params[:tests]
-      @previous_runtimes = filter_params[:runtimes]
-      @previous_results = filter_params[:results]
+      filter_params.each do |col,filter|
+        print "filter col: #{col.class}"
+        @previous_choices[col] = filter
+      end
     end
   end
 
   # GET /screendump_results/1
   # GET /screendump_results/1.json
   def show
+    # Get image link for current screendump
+    # TODO: This nees to change based on the release tag (for example, use buildbot-51 if running on 5.1)
+    @source_screendump_uri = File.join("http://buildbot/screendumps/",
+                                @screendump_result.source_revision,
+                                @screendump_result.source_runtime,
+                                @screendump_result.test)
+    @target_screendump_uri = File.join("http://buildbot/screendumps/",
+                                @screendump_result.target_revision,
+                                @screendump_result.target_runtime,
+                                @screendump_result.test)
     #File.open('/home/tzhuang/tmp/img/base.png', 'rb') do |f|
       #send_data f.read, :type => "image/jpeg", :disposition => "inline"
     #end
@@ -89,6 +111,6 @@ class ScreendumpResultsController < ApplicationController
     end
 
     def filter_params
-      params.permit(:tests, results:[], runtimes:[])
+      params.permit(:test, result:[], source_runtime:[], source_revision: [], target_revision: [], target_runtime: [])
     end
 end
