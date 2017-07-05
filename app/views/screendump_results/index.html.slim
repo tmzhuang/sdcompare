@@ -1,27 +1,32 @@
 h1 Listing screendump_results
 = form_tag(screendump_results_path, method: "get") do
-  = label_tag(:tests, "Filter by test name")
-  = text_field_tag(:tests, @previous_tests)
-  = select_tag 'runtimes[]', options_for_select(@runtime_choices, @previous_runtimes), multiple: true
-  = select_tag 'results[]', options_for_select(['PASS','WARN','FAIL'], @previous_results), multiple: true
+  = text_field_tag(:test, @previous_choices['test'])
+  - @choices.each do |col,choices|
+    = select_tag "#{col}[]", options_for_select(choices, @previous_choices[col]), multiple: true
   = submit_tag("Filter")
 table
   thead
     tr
+      th Source
+      th Target
       th Test
-      th Runtime
+      th SSIM
+      th Hist
       th Result
       th Notes
 
   tbody
     - @screendump_results.each do |screendump_result|
       tr
-        td = screendump_result.test
-        td = screendump_result.runtime
+        td #{screendump_result.source_revision}/#{screendump_result.source_runtime}
+        td #{screendump_result.target_revision}/#{screendump_result.target_runtime}
+        td = link_to screendump_result.test, screendump_result
+        td = screendump_result.ssim
+        td = screendump_result.hist
         td = screendump_result.result
         td = screendump_result.notes
-        td = link_to 'Show', screendump_result
+        /td = link_to 'Show', screendump_result
 
 br
 
-= link_to 'New Screendump result', new_screendump_result_path
+/= link_to 'New Screendump result', new_screendump_result_path

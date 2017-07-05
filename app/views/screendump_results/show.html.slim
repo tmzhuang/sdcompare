@@ -4,15 +4,17 @@ p#notice = notice
 table
   thead
     tr
-      th Reference
-      th Screendump
+      th #{@screendump_result.source_revision}/#{@screendump_result.source_runtime}
+      th #{@screendump_result.target_revision}/#{@screendump_result.target_runtime}
 
   tbody
     tr
-      td = image_tag 'http://ecocar3.org/wp-content/uploads/2014/10/Crank_Software.png'
-      td = image_tag 'http://ecocar3.org/wp-content/uploads/2014/10/Crank_Software.png'
+      td = image_tag @source_screendump_uri
+      td = image_tag @target_screendump_uri
     tr
-      td test:#{@screendump_result.test}
+      td ssim:#{@screendump_result.ssim}
+    tr
+      td hist:#{@screendump_result.hist}
 
 
 /= link_to 'Edit', edit_screendump_result_path(@screendump_result)
