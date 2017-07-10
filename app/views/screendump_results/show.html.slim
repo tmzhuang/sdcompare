@@ -6,16 +6,34 @@ table
     tr
       th #{@screendump_result.source_revision}/#{@screendump_result.source_runtime}
       th #{@screendump_result.target_revision}/#{@screendump_result.target_runtime}
+      - if @screendump_result.result != 'pass'
+        th Diff
 
   tbody
     tr
-      td = image_tag @source_screendump_uri
-      td = image_tag @target_screendump_uri
-    tr
-      td ssim:#{@screendump_result.ssim}
-    tr
-      td hist:#{@screendump_result.hist}
-
+      td = image_tag source_screendump_uri(@screendump_result)
+      td = image_tag target_screendump_uri(@screendump_result)
+      - if @screendump_result.result != 'pass'
+        td = image_tag diff_uri(@screendump_result)
+    tr 
+      table.table.table-bordered
+        thead
+          tr
+            th Result
+            th ssim
+            th hist
+            th Notes
+            th Status
+            th PR
+        tbody
+          tr
+            th = @screendump_result.result
+            th = @screendump_result.ssim
+            th = @screendump_result.hist
+            th = @screendump_result.notes
+            - if @screendump_result.status
+              th = @screendump_result.status
+              td = link_to @screendump_result.pr, pr_uri(@screendump_result), target: :_blank
 
 /= link_to 'Edit', edit_screendump_result_path(@screendump_result)
 /'  |

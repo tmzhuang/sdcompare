@@ -1,0 +1,21 @@
+h1 Listing known_issues
+
+table.table.table-striped
+  thead
+    tr
+      th Test
+      th Runtime
+      th PR
+
+  tbody
+    - @known_issues.each do |known_issue|
+      tr
+        td = known_issue.test
+        td = known_issue.runtime
+        td = link_to known_issue.pr, pr_uri(known_issue), target: '_blank'
+        td = link_to 'Edit', edit_known_issue_path(known_issue)
+        td = link_to 'Destroy', known_issue, data: { confirm: 'Are you sure?' }, method: :delete
+
+br
+
+== render 'form'

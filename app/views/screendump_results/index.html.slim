@@ -1,31 +1,59 @@
 h1 Listing screendump_results
-= form_tag(screendump_results_path, method: "get") do
-  = text_field_tag(:test, @previous_choices['test'])
-  - @choices.each do |col,choices|
-    = select_tag "#{col}[]", options_for_select(choices, @previous_choices[col]), multiple: true
-  = submit_tag("Filter")
-table
+/= form_tag(screendump_results_path, method: "get", class: 'custom-controls-stacked') do
+= form_tag(screendump_results_path, method: "get", class: 'form-control-static') do
+  table
+    thead
+      tr
+        th = label_tag :test, "Filter by test name:"
+        - @choices.each do |col,choices|
+          th = label_tag "#{col}"
+        th = label_tag :pr, "Filter by PR:"
+    tbody
+      tr
+        th = text_field_tag(:test, @previous_choices['test'])
+        - @choices.each do |col,choices|
+          th = select_tag "#{col}[]", options_for_select(choices, @previous_choices[col]), multiple: true
+        th = text_field_tag(:pr, @previous_choices['pr'])
+  = submit_tag "Filter"
+font color='green' 
+  p Success:#{@success_count}
+font color='orange' 
+  p Known Issues:#{@known_issue_count}
+font color='red' 
+  p New Issues:#{@new_issue_count}
+/ Display data in table
+table.table.table-striped
   thead
     tr
-      th Source
-      th Target
+      th SR
+      th Source runtime
+      th TR
+      th Target runtime
       th Test
       th SSIM
       th Hist
       th Result
       th Notes
+      th Status
+      th PR
 
   tbody
     - @screendump_results.each do |screendump_result|
       tr
-        td #{screendump_result.source_revision}/#{screendump_result.source_runtime}
-        td #{screendump_result.target_revision}/#{screendump_result.target_runtime}
-        td = link_to screendump_result.test, screendump_result
+        td #{screendump_result.source_revision}
+        td #{screendump_result.source_runtime}
+        td #{screendump_result.target_revision}
+        td #{screendump_result.target_runtime}
+        td = link_to screendump_result.test, screendump_result, target: :_blank
         td = screendump_result.ssim
         td = screendump_result.hist
         td = screendump_result.result
         td = screendump_result.notes
-        /td = link_to 'Show', screendump_result
+        td = screendump_result.status
+        - if screendump_result.pr
+          td = link_to screendump_result.pr, pr_uri(screendump_result), target: :_blank
+        - else
+          td = 
 
 br
 

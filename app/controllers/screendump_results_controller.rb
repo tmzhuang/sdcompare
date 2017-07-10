@@ -7,8 +7,9 @@ class ScreendumpResultsController < ApplicationController
     # Table ordering
     @screendump_results = ScreendumpResult.order(test: :asc).
       order(result: :asc).all
-    cols_with_choices = ['source_revision','source_runtime','target_revision','target_runtime','result']
-    
+    cols_with_choices = ['source_revision','source_runtime','target_revision','target_runtime','result','status']
+    cols_with_text = ['test','pr']
+
     # Filtering
     @choices = {}
     cols_with_choices.each do |col|
@@ -17,16 +18,21 @@ class ScreendumpResultsController < ApplicationController
       # Filter if necessary
       @screendump_results = @screendump_results.where(col => filter_params[col]) if filter_params[col]
     end
-    if filter_params[:test]
-      tests = filter_params[:test].split(',').map{|s| s.strip}.join('|')
-      @screendump_results = @screendump_results.where("test ~* ?", tests)
+    cols_with_text.each do |col|
+      if filter_params[col]
+        selections = filter_params[col].split(',').map{|s| s.strip}.join('|')
+        @screendump_results = @screendump_results.where("#{col} ~* ?", selections)
+      end
     end
+
+    @success_count = @screendump_results.where('status' => 'success').count
+    @new_issue_count = @screendump_results.where('status' => 'new-issue').count
+    @known_issue_count = @screendump_results.where('status' => 'known-issue').count
 
     # Populate previous choices form if they exist
     @previous_choices = {}
     if filter_params
       filter_params.each do |col,filter|
-        print "filter col: #{col.class}"
         @previous_choices[col] = filter
       end
     end
@@ -37,16 +43,8 @@ class ScreendumpResultsController < ApplicationController
   def show
     # Get image link for current screendump
     # TODO: This nees to change based on the release tag (for example, use buildbot-51 if running on 5.1)
-    @source_screendump_uri = File.join("http://buildbot/screendumps/",
-                                @screendump_result.source_revision,
-                                @screendump_result.source_runtime,
-                                @screendump_result.test)
-    @target_screendump_uri = File.join("http://buildbot/screendumps/",
-                                @screendump_result.target_revision,
-                                @screendump_result.target_runtime,
-                                @screendump_result.test)
     #File.open('/home/tzhuang/tmp/img/base.png', 'rb') do |f|
-      #send_data f.read, :type => "image/jpeg", :disposition => "inline"
+    #send_data f.read, :type => "image/jpeg", :disposition => "inline"
     #end
   end
 
@@ -100,17 +98,17 @@ class ScreendumpResultsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_screendump_result
-      @screendump_result = ScreendumpResult.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_screendump_result
+    @screendump_result = ScreendumpResult.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def screendump_result_params
-      params.fetch(:screendump_result, {})
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def screendump_result_params
+    params.fetch(:screendump_result, {})
+  end
 
-    def filter_params
-      params.permit(:test, result:[], source_runtime:[], source_revision: [], target_revision: [], target_runtime: [])
-    end
+  def filter_params
+    params.permit(:test, :pr, result:[], source_runtime:[], source_revision: [], target_revision: [], target_runtime: [], status: [])
+  end
 end
