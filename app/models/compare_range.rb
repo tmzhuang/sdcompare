@@ -1,0 +1,2 @@
+class CompareRange < ApplicationRecord
+end

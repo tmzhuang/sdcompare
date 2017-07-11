@@ -1,0 +1,14 @@
+= form_for @compare_range do |f|
+  = f.label :test
+  = f.text_field :test
+  = f.label :runtime
+  = f.text_field :runtime
+  = f.label :min_ssim
+  = f.text_field :min_ssim
+  = f.label :max_ssim
+  = f.text_field :max_ssim
+  = f.label :min_hist
+  = f.text_field :min_hist
+  = f.label :max_hist
+  = f.text_field :max_hist
+  .actions = f.submit

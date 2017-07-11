@@ -1,0 +1,27 @@
+h1 Listing compare_ranges
+
+table.table.table-striped
+  thead
+    tr
+      th Test
+      th Runtime
+      th min-ssim
+      th max-ssim
+      th min-hist
+      th max-hist
+
+  tbody
+    - @compare_ranges.each do |compare_range|
+      tr
+        td = compare_range.test
+        td = compare_range.runtime
+        td = compare_range.min_ssim
+        td = compare_range.max_ssim
+        td = compare_range.min_hist
+        td = compare_range.max_hist
+        td = link_to 'Edit', edit_compare_range_path(compare_range)
+        td = link_to 'Destroy', compare_range, data: { confirm: 'Are you sure?' }, method: :delete
+
+br
+
+== render 'form'
