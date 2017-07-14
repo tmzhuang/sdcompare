@@ -12,7 +12,13 @@ table.table.table-striped
       tr
         td = known_issue.test
         td = known_issue.runtime
-        td = link_to known_issue.pr, pr_uri(known_issue), target: '_blank'
+        td 
+          - prs = known_issue.pr.split(',')
+          - prs.each_with_index do |pr,i|
+            = link_to pr, pr_uri(pr), target: :_blank
+            - unless i == prs.size - 1
+              | ,
+
         td = link_to 'Edit', edit_known_issue_path(known_issue)
         td = link_to 'Destroy', known_issue, data: { confirm: 'Are you sure?' }, method: :delete
 

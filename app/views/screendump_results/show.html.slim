@@ -19,21 +19,24 @@ table
       table.table.table-bordered
         thead
           tr
+            th Test
             th Result
             th ssim
             th hist
             th Notes
-            th Status
             th PR
         tbody
           tr
+            th = @screendump_result.test
             th = @screendump_result.result
             th = @screendump_result.ssim
             th = @screendump_result.hist
             th = @screendump_result.notes
-            - if @screendump_result.status
-              th = @screendump_result.status
-              td = link_to @screendump_result.pr, pr_uri(@screendump_result), target: :_blank
+            th
+              - @screendump_result.pr.each_with_index do |pr,i|
+                = link_to pr, pr_uri(pr), target: :_blank
+                - unless i == @screendump_result.pr.size - 1
+                  | ,
 
 /= link_to 'Edit', edit_screendump_result_path(@screendump_result)
 /'  |

@@ -7,7 +7,7 @@ class ScreendumpResultsController < ApplicationController
     # Table ordering
     @screendump_results = ScreendumpResult.order(test: :asc).
       order(result: :asc).all
-    cols_with_choices = ['source_revision','source_runtime','target_revision','target_runtime','result','status']
+    cols_with_choices = ['result','source_runtime','source_revision','target_runtime','target_revision']
     cols_with_text = ['test','pr']
 
     # Filtering
@@ -21,13 +21,16 @@ class ScreendumpResultsController < ApplicationController
     cols_with_text.each do |col|
       if filter_params[col]
         selections = filter_params[col].split(',').map{|s| s.strip}.join('|')
-        @screendump_results = @screendump_results.where("#{col} ~* ?", selections)
+        # NOTE: REGEXP expression specific to mysql. Postgres uses ~*
+        # TODO: Find a consistent way to query both dbs
+        @screendump_results = @screendump_results.where("#{col} REGEXP ?", selections) unless selections.blank?
       end
     end
 
-    @success_count = @screendump_results.where('status' => 'success').count
-    @new_issue_count = @screendump_results.where('status' => 'new-issue').count
-    @known_issue_count = @screendump_results.where('status' => 'known-issue').count
+    @pass_count = @screendump_results.where(result: 'pass').size
+    @fail_count = @screendump_results.where(result: 'fail').size
+    @xpass_count = @screendump_results.where(result: 'xpass').size
+    @xfail_count = @screendump_results.where(result: 'xfail').size
 
     # Populate previous choices form if they exist
     @previous_choices = {}
@@ -109,6 +112,6 @@ class ScreendumpResultsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:test, :pr, result:[], source_runtime:[], source_revision: [], target_revision: [], target_runtime: [], status: [])
+    params.permit(:test, :pr, result:[], source_runtime:[], source_revision: [], target_revision: [], target_runtime: [])
   end
 end

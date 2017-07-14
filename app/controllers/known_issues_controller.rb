@@ -25,9 +25,20 @@ class KnownIssuesController < ApplicationController
   # POST /known_issues
   # POST /known_issues.json
   def create
-    @known_issue = KnownIssue.new(known_issue_params)
+    prs = known_issue_params[:pr].split(',')
+    success = true
+    prs.each do |pr|
+      puts 'lkjlj'
+      known_issue_params[:pr] = pr
+      puts known_issue_params[:pr]
+      puts pr
+      @known_issue = KnownIssue.new(test: known_issue_params[:test],
+                                   runtime: known_issue_params[:runtime],
+                                   pr: pr)
+      success = @known_issue.save and success
+    end
 
-    if @known_issue.save
+    if success
       flash[:success] = 'Record created.'
       redirect_to known_issues_url
     else
@@ -52,7 +63,7 @@ class KnownIssuesController < ApplicationController
   # DELETE /known_issues/1.json
   def destroy
     @known_issue.destroy
-    flash[:success] = 'Record delete.'
+    flash[:success] = 'Record deleted.'
     redirect_to known_issues_url
   end
 

@@ -6,7 +6,7 @@ h1 Listing screendump_results
       tr
         th = label_tag :test, "Filter by test name:"
         - @choices.each do |col,choices|
-          th = label_tag "#{col}"
+          th = label_tag col, get_label(col)
         th = label_tag :pr, "Filter by PR:"
     tbody
       tr
@@ -16,45 +16,45 @@ h1 Listing screendump_results
         th = text_field_tag(:pr, @previous_choices['pr'])
   = submit_tag "Filter"
 font color='green' 
-  p Success:#{@success_count}
-font color='orange' 
-  p Known Issues:#{@known_issue_count}
+  | PASS:#{@pass_count}
 font color='red' 
-  p New Issues:#{@new_issue_count}
+  |  FAIL:#{@fail_count}
+font color='orange' 
+  |  XPASS:#{@xpass_count}
+font color='orange' 
+  |  XFAIL:#{@xfail_count}
 / Display data in table
 table.table.table-striped
   thead
     tr
-      th SR
-      th Source runtime
-      th TR
-      th Target runtime
       th Test
+      th Result
+      th Source Runtime
+      th SRev
+      th Target Runtime
+      th TRev
       th SSIM
       th Hist
-      th Result
-      th Notes
-      th Status
       th PR
+      th Notes
 
   tbody
     - @screendump_results.each do |screendump_result|
       tr
-        td #{screendump_result.source_revision}
-        td #{screendump_result.source_runtime}
-        td #{screendump_result.target_revision}
-        td #{screendump_result.target_runtime}
         td = link_to screendump_result.test, screendump_result, target: :_blank
+        td = screendump_result.result.upcase
+        td #{screendump_result.source_runtime}
+        td #{screendump_result.source_revision}
+        td #{screendump_result.target_runtime}
+        td #{screendump_result.target_revision}
         td = screendump_result.ssim
         td = screendump_result.hist
-        td = screendump_result.result
+        td 
+          - screendump_result.pr.each_with_index do |pr,i|
+            = link_to pr, pr_uri(pr), target: :_blank
+            - unless i == screendump_result.pr.size - 1
+              | ,
         td = screendump_result.notes
-        td = screendump_result.status
-        - if screendump_result.pr
-          td = link_to screendump_result.pr, pr_uri(screendump_result), target: :_blank
-        - else
-          td = 
-
 br
 
 /= link_to 'New Screendump result', new_screendump_result_path

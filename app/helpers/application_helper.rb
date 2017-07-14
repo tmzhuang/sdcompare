@@ -4,7 +4,7 @@ module ApplicationHelper
   end
 
   def screendumps_root
-    "http://buildbot/screendumps/"
+    "http://buildbot-51/screendumps/"
   end
 
   def diffs_root
@@ -33,7 +33,7 @@ module ApplicationHelper
               @screendump_result.test)
   end
 
-  def pr_uri(screendump_result)
-    blur_root + screendump_result.pr
+  def pr_uri(pr)
+    blur_root + pr
   end
 end
