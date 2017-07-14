@@ -6,14 +6,14 @@ table
     tr
       th #{@screendump_result.source_revision}/#{@screendump_result.source_runtime}
       th #{@screendump_result.target_revision}/#{@screendump_result.target_runtime}
-      - if @screendump_result.result != 'pass'
+      - if @screendump_result.result != 'PASS'
         th Diff
 
   tbody
     tr
       td = image_tag source_screendump_uri(@screendump_result)
       td = image_tag target_screendump_uri(@screendump_result)
-      - if @screendump_result.result != 'pass'
+      - if @screendump_result.result != 'PASS'
         td = image_tag diff_uri(@screendump_result)
     tr 
       table.table.table-bordered
