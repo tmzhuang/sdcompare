@@ -10,30 +10,46 @@ class ScreendumpResultsController < ApplicationController
     cols_with_choices = ['result','source_runtime','source_revision','target_runtime','target_revision']
     cols_with_text = ['test','pr']
 
-    # Filtering
+    # Generate choices
     @choices = {}
     cols_with_choices.each do |col|
       # Generate choices for filter form
       @choices[col] = ScreendumpResult.all.pluck(col).uniq
-      # Filter if necessary
-      @screendump_results = @screendump_results.where(col => filter_params[col]) if filter_params[col]
     end
-    cols_with_text.each do |col|
-      if filter_params[col]
-        selections = filter_params[col].split(',').map{|s| s.strip}.join('|')
-        # NOTE: REGEXP expression specific to mysql. Postgres uses ~*
-        # TODO: Find a consistent way to query both dbs
-        @screendump_results = @screendump_results.where("#{col} REGEXP ?", selections) unless selections.blank?
+    # Filtering
+    @previous_choices = {}
+    unless filter_params.empty?
+      cols_with_choices.each do |col|
+        # Filter if necessary
+        @screendump_results = @screendump_results.where(col => filter_params[col]) if filter_params[col]
       end
+      cols_with_text.each do |col|
+        if filter_params[col]
+          selections = filter_params[col].split(',').map{|s| s.strip}.join('|')
+          # NOTE: REGEXP expression specific to mysql. Postgres uses ~*
+          # TODO: Find a consistent way to query both dbs
+          @screendump_results = @screendump_results.where("#{col} REGEXP ?", selections) unless selections.blank?
+        end
+      end
+    else
+      latest_source_revision = ScreendumpResult.latest_source_revision
+      latest_target_revision = ScreendumpResult.latest_target_revision
+      @previous_choices['source_revision'] = latest_source_revision
+      @previous_choices['target_revision'] = latest_target_revision
+      @previous_choices['result'] = @choices['result'] - ['PASS']
+      puts ScreendumpResult.latest_source_revision
+      puts ScreendumpResult.latest_target_revision
+      @screendump_results = @screendump_results.where(source_revision: latest_source_revision) 
+      @screendump_results = @screendump_results.where(target_revision: latest_target_revision) 
+      @screendump_results = @screendump_results.where.not(result: 'PASS') 
     end
 
-    @pass_count = @screendump_results.where(result: 'pass').size
-    @fail_count = @screendump_results.where(result: 'fail').size
-    @xpass_count = @screendump_results.where(result: 'xpass').size
-    @xfail_count = @screendump_results.where(result: 'xfail').size
+    @pass_count = @screendump_results.where(result: 'PASS').size
+    @fail_count = @screendump_results.where(result: 'FAIL').size
+    @xpass_count = @screendump_results.where(result: 'XPASS').size
+    @xfail_count = @screendump_results.where(result: 'XFAIL').size
 
     # Populate previous choices form if they exist
-    @previous_choices = {}
     if filter_params
       filter_params.each do |col,filter|
         @previous_choices[col] = filter
