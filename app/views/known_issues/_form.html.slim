@@ -1,8 +1,8 @@
 = form_for @known_issue do |f|
   = f.label :test
-  = f.text_field :test
+  = f.text_field :test, placeholder: 'eg. tcase_003_01.png'
   = f.label :runtime
-  = f.text_field :runtime
+  = f.text_field :runtime, placeholder: 'eg. win32-x86-win32'
   = f.label :pr, 'PR'
-  = f.text_field :pr
+  = f.text_field :pr, placeholder:'eg. 2003,4001'
   .actions = f.submit
